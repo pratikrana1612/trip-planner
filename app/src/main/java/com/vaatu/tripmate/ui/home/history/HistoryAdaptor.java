@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.vaatu.tripmate.R;
 import com.vaatu.tripmate.data.remote.network.FirebaseDB;
+import com.vaatu.tripmate.ui.home.ai.AiTripPlanActivity;
 import com.vaatu.tripmate.utils.TripModel;
 
 import java.util.ArrayList;
@@ -61,6 +62,16 @@ public class HistoryAdaptor extends RecyclerView.Adapter<HistoryAdaptor.ViewHold
         holder.status.setText(list.get(position).status);
         holder.time.setText(list.get(position).time);
         holder.end.setText(list.get(position).endloc);
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int adapterPosition = holder.getAdapterPosition();
+                if (adapterPosition == RecyclerView.NO_POSITION) {
+                    return;
+                }
+                AiTripPlanActivity.start(cntxt, list.get(adapterPosition));
+            }
+        });
         holder.popup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

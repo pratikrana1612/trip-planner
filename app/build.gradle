@@ -71,4 +71,7 @@ dependencies {
 
     // Gson
     implementation 'com.google.code.gson:gson:2.8.6'
+
+    // OkHttp for Gemini API calls
+    implementation 'com.squareup.okhttp3:okhttp:4.9.3'
 }

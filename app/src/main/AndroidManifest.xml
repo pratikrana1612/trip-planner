@@ -29,6 +29,11 @@
             android:label="@string/title_activity_upcoming_trips"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:name=".ui.home.ai.AiTripPlanActivity"
+            android:label="@string/ai_trip_plan_toolbar_title"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
             android:screenOrientation="portrait"
             android:name=".ui.user.UserCycleActivity"
             android:label="@string/title_activity_user_cycle"

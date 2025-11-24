@@ -69,5 +69,23 @@
         <item>Round Trip</item>
     </string-array>
 
+    <string name="ai_trip_plan_toolbar_title">AI Travel Plan</string>
+    <string name="ai_trip_plan_loading">Generating smart itinerary...</string>
+    <string name="ai_trip_plan_retry">Retry</string>
+    <string name="ai_trip_plan_packing_header">AI Packing List</string>
+    <string name="ai_trip_plan_day_plan_header">AI Day-by-Day Plan</string>
+    <string name="ai_trip_plan_tips_header">General Tips</string>
+    <string name="ai_trip_plan_error_missing_trip">Unable to open this trip.</string>
+    <string name="ai_trip_plan_error_generic">Could not generate AI plan. Please try again.</string>
+    <string name="ai_trip_plan_route_template">From %1$s -> %2$s</string>
+    <string name="ai_trip_plan_date_template">Starting %1$s at %2$s</string>
+    <string name="ai_trip_plan_notes_template">Notes: %1$s</string>
+    <string name="ai_trip_plan_no_tips">No tips yet. Try generating again soon.</string>
+    <string name="ai_trip_plan_value_unknown">Unknown</string>
+    <string name="ai_trip_plan_item_category_template">Category: %1$s</string>
+    <string name="ai_trip_plan_item_reason_template">Reason: %1$s</string>
+    <string name="ai_trip_plan_day_title_template">Day %1$d - %2$s</string>
+    <string name="ai_trip_plan_day_no_description">Details coming soon.</string>
+    <string name="ai_trip_plan_day_no_places">No places suggested yet.</string>
 
 </resources>
