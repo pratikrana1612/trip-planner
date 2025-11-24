@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "657965703858",
+    "firebase_url": "https://trip-mate-7fac8-default-rtdb.firebaseio.com",
+    "project_id": "trip-mate-7fac8",
+    "storage_bucket": "trip-mate-7fac8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:657965703858:android:3c693433db7973baea5fab",
+        "android_client_info": {
+          "package_name": "com.vaatu.tripmate"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBmzkpmr0fYfzVv30svK6W17O2iCUHU0vs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
