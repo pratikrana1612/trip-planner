@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/white"
+    android:background="@color/ai_background"
     android:fitsSystemWindows="true">
 
     <androidx.appcompat.widget.Toolbar
@@ -27,6 +27,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:padding="16dp"
+            android:paddingBottom="32dp"
             android:visibility="gone"
             android:fillViewport="true">
 
@@ -39,21 +40,37 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardUseCompatPadding="true">
+                    app:cardCornerRadius="18dp"
+                    app:cardUseCompatPadding="false"
+                    app:cardBackgroundColor="@color/colorPrimary">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="20dp">
 
-                        <TextView
-                            android:id="@+id/tripTitleText"
-                            android:layout_width="wrap_content"
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-                            tools:text="Weekend in Paris" />
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:src="@drawable/ic_check_circle_blue" />
+
+                            <TextView
+                                android:id="@+id/tripTitleText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="12dp"
+                                android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+                                android:textColor="@android:color/white"
+                                android:textStyle="bold"
+                                tools:text="Weekend in Paris" />
+                        </LinearLayout>
 
                         <TextView
                             android:id="@+id/tripRouteText"
@@ -61,6 +78,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                            android:textColor="@android:color/white"
                             tools:text="From Berlin -> Paris" />
 
                         <TextView
@@ -69,6 +87,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                            android:textColor="@android:color/white"
                             tools:text="Starting 12 Aug 2025 at 09:00" />
 
                         <TextView
@@ -77,54 +96,152 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="6dp"
                             android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                            android:textColor="@color/colorAccent"
+                            android:textColor="@android:color/white"
                             tools:text="Notes: Carry hiking shoes" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
-                <TextView
+                <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:text="@string/ai_trip_plan_packing_header"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+                    android:layout_marginBottom="16dp"
+                    app:cardBackgroundColor="@color/ai_card_fill"
+                    app:cardCornerRadius="18dp"
+                    app:cardUseCompatPadding="false">
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/packingRecyclerView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:nestedScrollingEnabled="false"
-                    tools:listitem="@layout/item_packing_list" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
-                    android:layout_marginBottom="8dp"
-                    android:text="@string/ai_trip_plan_day_plan_header"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/dayPlanRecyclerView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:nestedScrollingEnabled="false"
-                    tools:listitem="@layout/item_day_plan" />
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ic_check_circle_blue" />
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
-                    android:text="@string/ai_trip_plan_tips_header"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:text="@string/ai_trip_plan_packing_header"
+                                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                                android:textColor="@color/ai_section_header" />
+                        </LinearLayout>
 
-                <TextView
-                    android:id="@+id/generalTipsText"
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginVertical="12dp"
+                            android:background="@color/ai_card_stroke" />
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/packingRecyclerView"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:nestedScrollingEnabled="false"
+                            tools:listitem="@layout/item_packing_list" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    tools:text="- Buy museum passes in advance\n- Keep metro card handy" />
+                    android:layout_marginBottom="16dp"
+                    app:cardBackgroundColor="@color/ai_card_fill"
+                    app:cardCornerRadius="18dp"
+                    app:cardUseCompatPadding="false">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ic_schedule_24px" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:text="@string/ai_trip_plan_day_plan_header"
+                                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                                android:textColor="@color/ai_section_header" />
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginVertical="12dp"
+                            android:background="@color/ai_card_stroke" />
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/dayPlanRecyclerView"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:nestedScrollingEnabled="false"
+                            tools:listitem="@layout/item_day_plan" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardBackgroundColor="@color/ai_card_fill"
+                    app:cardCornerRadius="18dp"
+                    app:cardUseCompatPadding="false">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ic_lightbulb_blue" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:text="@string/ai_trip_plan_tips_header"
+                                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                                android:textColor="@color/ai_section_header" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/generalTipsText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                            android:textColor="@color/ai_text_secondary"
+                            tools:text="- Buy museum passes in advance\n- Keep metro card handy" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
 

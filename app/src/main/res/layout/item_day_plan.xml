@@ -5,8 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="12dp"
-    app:cardCornerRadius="12dp"
-    app:cardUseCompatPadding="true">
+    app:cardBackgroundColor="@color/ai_card_fill"
+    app:cardCornerRadius="16dp"
+    app:cardUseCompatPadding="false">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -14,29 +15,53 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <TextView
-            android:id="@+id/dayTitleText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:textStyle="bold"
-            android:textColor="@android:color/black"
-            tools:text="Day 1 - Arrival &amp; Old Town" />
-
-        <TextView
-            android:id="@+id/dayDescriptionText"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-            tools:text="Settle into hotel, explore nearby cafes and evening walk." />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <View
+                android:layout_width="4dp"
+                android:layout_height="32dp"
+                android:background="@color/colorAccent" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/dayTitleText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                    android:textColor="@color/ai_section_header"
+                    android:textStyle="bold"
+                    tools:text="Day 1 - Arrival &amp; Old Town" />
+
+                <TextView
+                    android:id="@+id/dayDescriptionText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                    android:textColor="@color/ai_text_secondary"
+                    tools:text="Settle into hotel, explore nearby cafes and evening walk." />
+            </LinearLayout>
+        </LinearLayout>
 
         <TextView
             android:id="@+id/dayPlacesText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_chip"
+            android:padding="12dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:textColor="@color/ai_chip_text"
             tools:text="- Morning: Louvre Museum\n- Afternoon: Seine cruise\n- Evening: Montmartre stroll" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>

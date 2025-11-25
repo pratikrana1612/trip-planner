@@ -74,4 +74,8 @@ dependencies {
 
     // OkHttp for Gemini API calls
     implementation 'com.squareup.okhttp3:okhttp:4.9.3'
+    
+    // Glide for image loading
+    implementation 'com.github.bumptech.glide:glide:4.11.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
 }

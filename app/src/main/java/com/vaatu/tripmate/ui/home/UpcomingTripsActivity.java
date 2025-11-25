@@ -35,6 +35,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.vaatu.tripmate.R;
 import com.vaatu.tripmate.data.remote.network.FirebaseDB;
 import com.vaatu.tripmate.ui.home.addButtonActivity.AddBtnActivity;
+import com.vaatu.tripmate.ui.home.memories.MemoriesActivity;
 import com.vaatu.tripmate.ui.splash.SplashActivity;
 import com.vaatu.tripmate.ui.user.SignUp;
 import com.vaatu.tripmate.ui.user.UserCycleActivity;
@@ -112,30 +113,11 @@ public class UpcomingTripsActivity extends AppCompatActivity   {
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
- String dbUrl = "https://trip-mate-7fac8-default-rtdb.firebaseio.com/";
-                    //TODO    ProgressBar
                 if (menuItem.getItemId() == R.id.nav_sync) {
-
-
+                    // Navigate to memories activity
+                    Intent memoriesIntent = new Intent(UpcomingTripsActivity.this, MemoriesActivity.class);
+                    startActivity(memoriesIntent);
                     drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-                    DatabaseReference connectedRef = FirebaseDatabase.getInstance(dbUrl).getReference(".info/connected");
-                    connectedRef.addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            boolean connected = snapshot.getValue(Boolean.class);
-
-                            if (connected) {
-                                Toast.makeText(UpcomingTripsActivity.this, "You are Connected and Data Updated", Toast.LENGTH_SHORT).show();
-
-                            } else {
-                                Toast.makeText(UpcomingTripsActivity.this, "Please check your connection", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-                        }
-                    });
-
                     return true;
                 } else if (menuItem.getItemId() == R.id.nav_logout) {
                     //Navigation here

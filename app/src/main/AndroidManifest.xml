@@ -34,6 +34,16 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:name=".ui.home.memories.MemoriesActivity"
+            android:label="Memories"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ui.home.memories.TripMemoriesActivity"
+            android:label="Trip Memories"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
             android:screenOrientation="portrait"
             android:name=".ui.user.UserCycleActivity"
             android:label="@string/title_activity_user_cycle"

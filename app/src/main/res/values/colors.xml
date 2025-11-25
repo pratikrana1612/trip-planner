@@ -8,6 +8,12 @@
     <color name="white">#FFF</color>
     <color name="red">#f4261f</color>
     <color name="green">#638C41</color>
-
+    <color name="ai_background">#F6F8FC</color>
+    <color name="ai_card_stroke">#DDE7FF</color>
+    <color name="ai_card_fill">#FFFFFF</color>
+    <color name="ai_chip_bg">#E3F2FD</color>
+    <color name="ai_chip_text">#0D47A1</color>
+    <color name="ai_text_secondary">#546E7A</color>
+    <color name="ai_section_header">#263238</color>
 
 </resources>

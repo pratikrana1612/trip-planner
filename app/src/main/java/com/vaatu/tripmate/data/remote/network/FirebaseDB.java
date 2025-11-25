@@ -13,6 +13,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.vaatu.tripmate.utils.TripModel;
 
 public class FirebaseDB {
+    private static final String DB_URL = "https://trip-mate-7fac8-default-rtdb.firebaseio.com/";
     DatabaseReference myRef;
     FirebaseDatabase database;
     FirebaseAuth mAuth;
@@ -21,13 +22,11 @@ public class FirebaseDB {
 
 
     private FirebaseDB() {
-   String dbUrl = "https://trip-mate-7fac8-default-rtdb.firebaseio.com/";
-        database = FirebaseDatabase.getInstance(dbUrl);
+        database = FirebaseDatabase.getInstance(DB_URL);
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
         //myRef = database.getReference(currentUser.getUid());
         myRef = database.getReference();
-
 
     }
 
@@ -98,4 +97,5 @@ public class FirebaseDB {
         });
 
     }
+
 }

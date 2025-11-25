@@ -18,7 +18,7 @@
     <string name="action_settings">Settings</string>
     <!-- Strings used for fragments for side drawer menu -->
     <string name="menu_home">History</string>
-    <string name="menu_gallery">Sync</string>
+    <string name="menu_gallery">Memories</string>
     <string name="menu_slideshow">Logout</string>
     <string name="home_second">History</string>
     <string name="title_activity_user_cycle">UserCycleActivity</string>
@@ -66,7 +66,6 @@
 
     <string-array name="trip_direction_array">
         <item>One way Trip</item>
-        <item>Round Trip</item>
     </string-array>
 
     <string name="ai_trip_plan_toolbar_title">AI Travel Plan</string>
