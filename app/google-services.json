@@ -13,7 +13,12 @@
           "package_name": "com.vaatu.tripmate"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "657965703858-ck71cht4hhu20grscgco4hjai0aa40ho.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBmzkpmr0fYfzVv30svK6W17O2iCUHU0vs"
@@ -21,7 +26,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "657965703858-ck71cht4hhu20grscgco4hjai0aa40ho.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

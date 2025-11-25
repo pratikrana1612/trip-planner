@@ -54,7 +54,7 @@ public class Login extends Fragment {
 
     Button btnSignUp;
     Button btnSignIn;
-    public SignInButton btnGoogle;
+//    public SignInButton btnGoogle;
 
     TextView mStatusTextView;
     
@@ -71,7 +71,7 @@ public class Login extends Fragment {
         passField = view.findViewById(R.id.passField);
         mStatusTextView = view.findViewById(R.id.textViewStatus);
         btnSignIn = view.findViewById(R.id.btnSignIn);
-        btnGoogle = view.findViewById(R.id.google_btn);
+//        btnGoogle = view.findViewById(R.id.google_btn);
         mProgressBar = view.findViewById(R.id.determinateBar);
         mProgressBar.getIndeterminateDrawable().setColorFilter(0x3F51B5 ,android.graphics.PorterDuff.Mode.MULTIPLY);
         mAuth = FirebaseAuth.getInstance();
@@ -113,13 +113,13 @@ public class Login extends Fragment {
             }
         });
 
-        btnGoogle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-                startActivityForResult(signInIntent, RC_SIGN_IN);
-            }
-        });
+//        btnGoogle.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+//                startActivityForResult(signInIntent, RC_SIGN_IN);
+//            }
+//        });
 
         return view;
 
