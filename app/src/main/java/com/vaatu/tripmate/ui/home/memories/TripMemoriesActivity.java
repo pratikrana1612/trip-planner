@@ -13,6 +13,7 @@ import android.widget.Toast;
 import android.webkit.MimeTypeMap;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -77,7 +78,17 @@ public class TripMemoriesActivity extends AppCompatActivity {
         fabAddPhoto = findViewById(R.id.fab_add_photo);
         emptyStateText = findViewById(R.id.empty_state_text);
 
-        adapter = new PhotosAdapter(photos, this, this::showImagePreview);
+        adapter = new PhotosAdapter(photos, this, new PhotosAdapter.PhotoActionListener() {
+            @Override
+            public void onPhotoClicked(String filePath) {
+                showImagePreview(filePath);
+            }
+
+            @Override
+            public void onDeleteClicked(TripPhoto photo) {
+                showDeleteConfirmation(photo);
+            }
+        });
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 3);
         photosGrid.setLayoutManager(gridLayoutManager);
         photosGrid.setAdapter(adapter);
@@ -219,6 +230,36 @@ public class TripMemoriesActivity extends AppCompatActivity {
 
     private void showImagePreview(String path) {
         ImagePreviewDialog.newInstance(path).show(getSupportFragmentManager(), "image_preview");
+    }
+
+    private void showDeleteConfirmation(TripPhoto photo) {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.delete_photo_confirmation_title)
+                .setMessage(R.string.delete_photo_confirmation_message)
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.delete, (dialog, which) -> deletePhoto(photo))
+                .show();
+    }
+
+    private void deletePhoto(TripPhoto photo) {
+        boolean removed = photoStore.deletePhoto(tripId, photo.getId());
+        deletePhotoFile(photo.getFilePath());
+        if (removed) {
+            Toast.makeText(this, R.string.photo_deleted, Toast.LENGTH_SHORT).show();
+            loadPhotos();
+        } else {
+            Toast.makeText(this, R.string.delete_photo_failed, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void deletePhotoFile(String path) {
+        if (path == null) {
+            return;
+        }
+        File file = new File(path);
+        if (file.exists() && !file.delete()) {
+            Log.w("TripMemories", "Unable to delete photo file: " + path);
+        }
     }
 
     private void showProgressDialog(String message) {

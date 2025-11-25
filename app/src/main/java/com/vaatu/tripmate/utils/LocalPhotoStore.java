@@ -61,6 +61,23 @@ public class LocalPhotoStore {
         return photos.get(0);
     }
 
+    public boolean deletePhoto(String tripId, String photoId) {
+        List<TripPhoto> photos = getPhotos(tripId);
+        boolean removed = false;
+        for (int i = photos.size() - 1; i >= 0; i--) {
+            TripPhoto photo = photos.get(i);
+            if (photo != null && photoId.equals(photo.getId())) {
+                photos.remove(i);
+                removed = true;
+                break;
+            }
+        }
+        if (removed) {
+            preferences.edit().putString(buildKey(tripId), gson.toJson(photos)).apply();
+        }
+        return removed;
+    }
+
     public void clearAll() {
         preferences.edit().clear().apply();
     }

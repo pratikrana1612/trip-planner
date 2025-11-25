@@ -3,6 +3,7 @@ package com.vaatu.tripmate.ui.home.memories;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
@@ -18,15 +19,16 @@ import java.util.List;
 
 public class PhotosAdapter extends RecyclerView.Adapter<PhotosAdapter.ViewHolder> {
 
-    public interface OnPhotoClickListener {
+    public interface PhotoActionListener {
         void onPhotoClicked(String filePath);
+        void onDeleteClicked(TripPhoto photo);
     }
 
     private List<TripPhoto> photos;
     private TripMemoriesActivity context;
-    private OnPhotoClickListener listener;
+    private PhotoActionListener listener;
 
-    public PhotosAdapter(List<TripPhoto> photos, TripMemoriesActivity context, OnPhotoClickListener listener) {
+    public PhotosAdapter(List<TripPhoto> photos, TripMemoriesActivity context, PhotoActionListener listener) {
         this.photos = photos;
         this.context = context;
         this.listener = listener;
@@ -58,11 +60,19 @@ public class PhotosAdapter extends RecyclerView.Adapter<PhotosAdapter.ViewHolder
                         listener.onPhotoClicked(filePath);
                     }
                 });
+                holder.deleteButton.setVisibility(View.VISIBLE);
+                holder.deleteButton.setOnClickListener(v -> {
+                    if (listener != null) {
+                        listener.onDeleteClicked(photo);
+                    }
+                });
                 return;
             }
         }
         holder.photoImage.setImageResource(R.drawable.ic_photo_placeholder);
         holder.photoImage.setOnClickListener(null);
+        holder.deleteButton.setVisibility(View.GONE);
+        holder.deleteButton.setOnClickListener(null);
     }
 
     @Override
@@ -72,10 +82,12 @@ public class PhotosAdapter extends RecyclerView.Adapter<PhotosAdapter.ViewHolder
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView photoImage;
+        ImageButton deleteButton;
 
         ViewHolder(View itemView) {
             super(itemView);
             photoImage = itemView.findViewById(R.id.photo_image);
+            deleteButton = itemView.findViewById(R.id.btn_delete_photo);
         }
     }
 }
