@@ -91,5 +91,9 @@
     <string name="delete_photo_confirmation_message">This photo will be removed from the trip memories.</string>
     <string name="delete_photo_failed">Could not delete photo.</string>
     <string name="photo_deleted">Photo deleted.</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="reset_link_sent">Reset link sent to your email.</string>
+    <string name="reset_link_failed">Unable to send reset link. Please try again.</string>
+    <string name="enter_email_reset">Enter your email to reset password.</string>
 
 </resources>

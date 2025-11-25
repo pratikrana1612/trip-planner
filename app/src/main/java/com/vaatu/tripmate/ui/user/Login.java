@@ -57,6 +57,7 @@ public class Login extends Fragment {
 //    public SignInButton btnGoogle;
 
     TextView mStatusTextView;
+    TextView forgotPasswordText;
     
     ProgressBar mProgressBar;
     private static final int RC_SIGN_IN = 9001;
@@ -70,6 +71,7 @@ public class Login extends Fragment {
         emailField = view.findViewById(R.id.emailField);
         passField = view.findViewById(R.id.passField);
         mStatusTextView = view.findViewById(R.id.textViewStatus);
+        forgotPasswordText = view.findViewById(R.id.tvForgotPassword);
         btnSignIn = view.findViewById(R.id.btnSignIn);
 //        btnGoogle = view.findViewById(R.id.google_btn);
         mProgressBar = view.findViewById(R.id.determinateBar);
@@ -110,6 +112,13 @@ public class Login extends Fragment {
             public void onClick(View v) {
                 showProgressBar();
                 login(emailField.getText().toString(), passField.getText().toString());
+            }
+        });
+
+        forgotPasswordText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                handlePasswordReset();
             }
         });
 
@@ -233,6 +242,25 @@ public class Login extends Fragment {
     private void showProgressBar(){
         mProgressBar.setVisibility(View.VISIBLE);
 
+    }
+
+    private void handlePasswordReset() {
+        String email = emailField.getText().toString().trim();
+        if (email.isEmpty()) {
+            emailField.setError(getString(R.string.enter_email_reset));
+            emailField.requestFocus();
+            return;
+        }
+        showProgressBar();
+        mAuth.sendPasswordResetEmail(email)
+                .addOnCompleteListener(task -> {
+                    hideProgressBar();
+                    if (task.isSuccessful()) {
+                        Toast.makeText(getContext(), R.string.reset_link_sent, Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getContext(), R.string.reset_link_failed, Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
 }
