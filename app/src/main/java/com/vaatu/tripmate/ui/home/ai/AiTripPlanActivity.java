@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.vaatu.tripmate.R;
+import com.vaatu.tripmate.data.remote.network.AiTripPlanFirebaseService;
 import com.vaatu.tripmate.data.remote.network.GeminiTravelService;
 import com.vaatu.tripmate.utils.TripModel;
 import com.vaatu.tripmate.utils.ai.AiTripPlan;
@@ -43,7 +44,10 @@ public class AiTripPlanActivity extends AppCompatActivity {
     private PackingListAdapter packingListAdapter;
     private DayPlanAdapter dayPlanAdapter;
     private GeminiTravelService geminiTravelService;
+    private AiTripPlanFirebaseService aiTripPlanFirebaseService;
     private TripModel tripModel;
+    private String tripId;
+    private boolean isRefreshing = false;
 
     public static void start(Context context, TripModel tripModel) {
         Intent intent = new Intent(context, AiTripPlanActivity.class);
@@ -62,6 +66,7 @@ public class AiTripPlanActivity extends AppCompatActivity {
         }
 
         geminiTravelService = new GeminiTravelService();
+        aiTripPlanFirebaseService = new AiTripPlanFirebaseService();
         bindViews();
         initLists();
 
@@ -71,8 +76,12 @@ public class AiTripPlanActivity extends AppCompatActivity {
             finish();
             return;
         }
+        
+        // Generate unique tripId from trip properties
+        tripId = AiTripPlanFirebaseService.generateTripId(tripModel);
+        
         populateTripSummary(tripModel);
-        fetchAiPlan();
+        loadAiPlan();
     }
 
     private void bindViews() {
@@ -89,7 +98,10 @@ public class AiTripPlanActivity extends AppCompatActivity {
         dayPlanRecyclerView = findViewById(R.id.dayPlanRecyclerView);
 
         Button retryButton = findViewById(R.id.retryButton);
-        retryButton.setOnClickListener(v -> fetchAiPlan());
+        retryButton.setOnClickListener(v -> {
+            isRefreshing = false; // Reset refresh flag for retry
+            loadAiPlan();
+        });
     }
 
     private void initLists() {
@@ -124,7 +136,51 @@ public class AiTripPlanActivity extends AppCompatActivity {
         return value == null ? getString(R.string.ai_trip_plan_value_unknown) : value;
     }
 
-    private void fetchAiPlan() {
+    /**
+     * Load AI plan - first check cache, then generate if not found
+     */
+    private void loadAiPlan() {
+        if (isRefreshing) {
+            // Force refresh - skip cache
+            fetchAiPlanFromGemini();
+            return;
+        }
+
+        showLoading();
+        
+        // First, try to load from cache
+        aiTripPlanFirebaseService.loadAiTripPlan(tripId, new AiTripPlanFirebaseService.AiTripPlanCallback() {
+            @Override
+            public void onSuccess(AiTripPlan plan) {
+                // Found cached plan - display it
+                runOnUiThread(() -> {
+                    showContent();
+                    updateUi(plan);
+                });
+            }
+
+            @Override
+            public void onPlanNotFound() {
+                // No cached plan - generate new one
+                fetchAiPlanFromGemini();
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                // Error loading cache - try generating new plan anyway
+                runOnUiThread(() -> {
+                    // Log error but continue to generate
+                    android.util.Log.w("AiTripPlan", "Cache load error: " + errorMessage);
+                });
+                fetchAiPlanFromGemini();
+            }
+        });
+    }
+
+    /**
+     * Fetch AI plan from Gemini API and save to cache
+     */
+    private void fetchAiPlanFromGemini() {
         showLoading();
         geminiTravelService.generatePlan(tripModel, new GeminiTravelService.GeminiCallback() {
             @Override
@@ -132,14 +188,34 @@ public class AiTripPlanActivity extends AppCompatActivity {
                 runOnUiThread(() -> {
                     showContent();
                     updateUi(aiTripPlan);
+                    
+                    // Save to Firebase cache
+                    if (tripId != null) {
+                        aiTripPlanFirebaseService.saveAiTripPlan(tripId, aiTripPlan);
+                    }
+                    
+                    // Reset refresh flag
+                    isRefreshing = false;
                 });
             }
 
             @Override
             public void onError(String errorMessage) {
-                runOnUiThread(() -> showError(errorMessage));
+                runOnUiThread(() -> {
+                    showError(errorMessage);
+                    // Reset refresh flag even on error
+                    isRefreshing = false;
+                });
             }
         });
+    }
+
+    /**
+     * Refresh AI plan - force regenerate
+     */
+    private void refreshAiPlan() {
+        isRefreshing = true;
+        loadAiPlan();
     }
 
     private void updateUi(AiTripPlan aiTripPlan) {
@@ -196,9 +272,18 @@ public class AiTripPlanActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(android.view.Menu menu) {
+        getMenuInflater().inflate(R.menu.ai_trip_plan_menu, menu);
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             onBackPressed();
+            return true;
+        } else if (item.getItemId() == R.id.action_refresh_ai_plan) {
+            refreshAiPlan();
             return true;
         }
         return super.onOptionsItemSelected(item);

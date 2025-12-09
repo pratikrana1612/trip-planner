@@ -16,6 +16,9 @@ public class AiTripPlan {
     @SerializedName("general_tips")
     private List<String> generalTips = new ArrayList<>();
 
+    @SerializedName("createdAt")
+    private long createdAt;
+
     public List<PackingItem> getPackingList() {
         return packingList;
     }
@@ -38,6 +41,14 @@ public class AiTripPlan {
 
     public void setGeneralTips(List<String> generalTips) {
         this.generalTips = generalTips;
+    }
+
+    public long getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(long createdAt) {
+        this.createdAt = createdAt;
     }
 
     public boolean isEmpty() {
