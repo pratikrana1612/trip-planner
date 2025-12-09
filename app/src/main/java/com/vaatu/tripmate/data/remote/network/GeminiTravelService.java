@@ -86,7 +86,22 @@ public class GeminiTravelService {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (!response.isSuccessful()) {
-                    callback.onError("Gemini error: " + response.code());
+                    int code = response.code();
+                    String errorMsg;
+                    if (code == 429) {
+                        errorMsg = "RATE_LIMIT_EXCEEDED: Too many requests. Please try again later or use cached plan.";
+                    } else if (code == 400) {
+                        errorMsg = "BAD_REQUEST: Invalid request to Gemini API.";
+                    } else if (code == 401) {
+                        errorMsg = "UNAUTHORIZED: Invalid API key.";
+                    } else if (code == 403) {
+                        errorMsg = "FORBIDDEN: API access denied.";
+                    } else if (code >= 500) {
+                        errorMsg = "SERVER_ERROR: Gemini API server error. Please try again later.";
+                    } else {
+                        errorMsg = "Gemini API error: " + code;
+                    }
+                    callback.onError(errorMsg);
                     return;
                 }
 

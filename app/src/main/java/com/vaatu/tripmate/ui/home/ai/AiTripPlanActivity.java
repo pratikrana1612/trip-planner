@@ -48,6 +48,7 @@ public class AiTripPlanActivity extends AppCompatActivity {
     private TripModel tripModel;
     private String tripId;
     private boolean isRefreshing = false;
+    private boolean isApiCallInProgress = false;
 
     public static void start(Context context, TripModel tripModel) {
         Intent intent = new Intent(context, AiTripPlanActivity.class);
@@ -149,11 +150,13 @@ public class AiTripPlanActivity extends AppCompatActivity {
         showLoading();
         
         // First, try to load from cache
+        android.util.Log.d("AiTripPlan", "Checking cache for trip: " + tripId);
         aiTripPlanFirebaseService.loadAiTripPlan(tripId, new AiTripPlanFirebaseService.AiTripPlanCallback() {
             @Override
             public void onSuccess(AiTripPlan plan) {
                 // Found cached plan - display it
                 runOnUiThread(() -> {
+                    android.util.Log.d("AiTripPlan", "Cache hit! Displaying cached plan");
                     showContent();
                     updateUi(plan);
                 });
@@ -162,16 +165,14 @@ public class AiTripPlanActivity extends AppCompatActivity {
             @Override
             public void onPlanNotFound() {
                 // No cached plan - generate new one
+                android.util.Log.d("AiTripPlan", "Cache miss, calling Gemini API");
                 fetchAiPlanFromGemini();
             }
 
             @Override
             public void onError(String errorMessage) {
                 // Error loading cache - try generating new plan anyway
-                runOnUiThread(() -> {
-                    // Log error but continue to generate
-                    android.util.Log.w("AiTripPlan", "Cache load error: " + errorMessage);
-                });
+                android.util.Log.w("AiTripPlan", "Cache load error: " + errorMessage + ", will try API");
                 fetchAiPlanFromGemini();
             }
         });
@@ -181,30 +182,79 @@ public class AiTripPlanActivity extends AppCompatActivity {
      * Fetch AI plan from Gemini API and save to cache
      */
     private void fetchAiPlanFromGemini() {
+        // Prevent multiple simultaneous API calls
+        if (isApiCallInProgress) {
+            android.util.Log.w("AiTripPlan", "API call already in progress, skipping duplicate request");
+            return;
+        }
+        
+        isApiCallInProgress = true;
         showLoading();
+        android.util.Log.d("AiTripPlan", "Calling Gemini API for trip: " + tripId);
+        
         geminiTravelService.generatePlan(tripModel, new GeminiTravelService.GeminiCallback() {
             @Override
             public void onSuccess(AiTripPlan aiTripPlan) {
                 runOnUiThread(() -> {
+                    android.util.Log.d("AiTripPlan", "Successfully received plan from Gemini API");
                     showContent();
                     updateUi(aiTripPlan);
                     
                     // Save to Firebase cache
                     if (tripId != null) {
+                        android.util.Log.d("AiTripPlan", "Saving plan to Firebase cache");
                         aiTripPlanFirebaseService.saveAiTripPlan(tripId, aiTripPlan);
                     }
                     
-                    // Reset refresh flag
+                    // Reset flags
                     isRefreshing = false;
+                    isApiCallInProgress = false;
                 });
             }
 
             @Override
             public void onError(String errorMessage) {
+                android.util.Log.e("AiTripPlan", "Gemini API error: " + errorMessage);
                 runOnUiThread(() -> {
-                    showError(errorMessage);
-                    // Reset refresh flag even on error
+                    // If it's a rate limit error and we're not refreshing, try to load cached plan
+                    if (errorMessage != null && errorMessage.contains("RATE_LIMIT_EXCEEDED") && !isRefreshing) {
+                        android.util.Log.w("AiTripPlan", "Rate limit hit, attempting to load cached plan as fallback");
+                        // Try to load from cache as fallback
+                        aiTripPlanFirebaseService.loadAiTripPlan(tripId, new AiTripPlanFirebaseService.AiTripPlanCallback() {
+                            @Override
+                            public void onSuccess(AiTripPlan plan) {
+                                runOnUiThread(() -> {
+                                    android.util.Log.d("AiTripPlan", "Successfully loaded cached plan as fallback");
+                                    showContent();
+                                    updateUi(plan);
+                                    Toast.makeText(AiTripPlanActivity.this, 
+                                        "Using cached plan due to rate limit. Please try refreshing later.", 
+                                        Toast.LENGTH_LONG).show();
+                                });
+                            }
+
+                            @Override
+                            public void onPlanNotFound() {
+                                runOnUiThread(() -> {
+                                    android.util.Log.w("AiTripPlan", "No cached plan found as fallback");
+                                    showError("Rate limit exceeded. No cached plan available. Please try again later.");
+                                });
+                            }
+
+                            @Override
+                            public void onError(String cacheError) {
+                                runOnUiThread(() -> {
+                                    android.util.Log.e("AiTripPlan", "Error loading cached plan: " + cacheError);
+                                    showError("Rate limit exceeded. Unable to load cached plan. Please try again later.");
+                                });
+                            }
+                        });
+                    } else {
+                        showError(errorMessage);
+                    }
+                    // Reset flags even on error
                     isRefreshing = false;
+                    isApiCallInProgress = false;
                 });
             }
         });
