@@ -13,6 +13,10 @@ public class PlaceToVisit {
     @SerializedName("notes")
     private String notes;
 
+    // Default constructor required for Firebase
+    public PlaceToVisit() {
+    }
+
     public String getName() {
         return name;
     }

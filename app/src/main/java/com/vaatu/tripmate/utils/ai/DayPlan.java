@@ -19,6 +19,10 @@ public class DayPlan {
     @SerializedName("places_to_visit")
     private List<PlaceToVisit> placesToVisit = new ArrayList<>();
 
+    // Default constructor required for Firebase
+    public DayPlan() {
+    }
+
     public int getDayNumber() {
         return dayNumber;
     }

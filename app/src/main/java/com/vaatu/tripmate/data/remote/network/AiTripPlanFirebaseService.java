@@ -79,36 +79,69 @@ public class AiTripPlanFirebaseService {
      * Load AI trip plan from Firebase
      */
     public void loadAiTripPlan(String tripId, AiTripPlanCallback callback) {
+        Log.d(TAG, "loadAiTripPlan called with tripId: " + tripId);
+        
         if (TextUtils.isEmpty(tripId)) {
+            Log.e(TAG, "Invalid trip ID provided");
             callback.onError("Invalid trip ID");
             return;
         }
 
-        DatabaseReference planRef = getAiTripPlanRef(tripId);
-        if (planRef == null) {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser == null) {
+            Log.e(TAG, "User not authenticated");
             callback.onError("User not authenticated");
             return;
         }
+        
+        Log.d(TAG, "User authenticated: " + currentUser.getUid());
 
+        DatabaseReference planRef = getAiTripPlanRef(tripId);
+        if (planRef == null) {
+            Log.e(TAG, "Failed to get Firebase reference");
+            callback.onError("Failed to get Firebase reference");
+            return;
+        }
+
+        Log.d(TAG, "Loading AI plan from Firebase. Path: ai_trip_plans/" + mAuth.getCurrentUser().getUid() + "/" + tripId);
+        
         planRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d(TAG, "Firebase data snapshot received. Exists: " + dataSnapshot.exists());
+                
                 if (dataSnapshot.exists()) {
                     try {
+                        // Log the raw data to see what Firebase returns
+                        Object rawValue = dataSnapshot.getValue();
+                        Log.d(TAG, "Raw Firebase data: " + (rawValue != null ? rawValue.toString() : "null"));
+                        
                         AiTripPlan plan = dataSnapshot.getValue(AiTripPlan.class);
+                        Log.d(TAG, "Deserialized plan: " + (plan != null ? "not null" : "null"));
+                        
+                        if (plan != null) {
+                            Log.d(TAG, "Plan details - PackingList size: " + 
+                                (plan.getPackingList() != null ? plan.getPackingList().size() : 0) +
+                                ", DayPlan size: " + 
+                                (plan.getDayPlan() != null ? plan.getDayPlan().size() : 0) +
+                                ", Tips size: " + 
+                                (plan.getGeneralTips() != null ? plan.getGeneralTips().size() : 0));
+                        }
+                        
                         if (plan != null && !plan.isEmpty()) {
-                            Log.d(TAG, "Loaded cached AI plan for trip: " + tripId);
+                            Log.d(TAG, "Successfully loaded cached AI plan for trip: " + tripId);
                             callback.onSuccess(plan);
                         } else {
-                            Log.d(TAG, "Cached plan exists but is empty for trip: " + tripId);
+                            Log.w(TAG, "Cached plan exists but is empty or null for trip: " + tripId);
                             callback.onPlanNotFound();
                         }
                     } catch (Exception e) {
                         Log.e(TAG, "Error parsing cached plan", e);
-                        callback.onError("Failed to parse cached plan");
+                        e.printStackTrace();
+                        callback.onError("Failed to parse cached plan: " + e.getMessage());
                     }
                 } else {
-                    Log.d(TAG, "No cached plan found for trip: " + tripId);
+                    Log.d(TAG, "No cached plan found in Firebase for trip: " + tripId);
                     callback.onPlanNotFound();
                 }
             }
@@ -126,18 +159,27 @@ public class AiTripPlanFirebaseService {
      */
     public void saveAiTripPlan(String tripId, AiTripPlan plan) {
         if (TextUtils.isEmpty(tripId) || plan == null || plan.isEmpty()) {
-            Log.w(TAG, "Cannot save: invalid tripId or empty plan");
+            Log.w(TAG, "Cannot save: invalid tripId or empty plan. tripId: " + tripId + ", plan null: " + (plan == null));
             return;
         }
 
         DatabaseReference planRef = getAiTripPlanRef(tripId);
         if (planRef == null) {
-            Log.w(TAG, "Cannot save: user not authenticated");
+            FirebaseUser currentUser = mAuth.getCurrentUser();
+            Log.w(TAG, "Cannot save: user not authenticated. Current user: " + (currentUser != null ? currentUser.getUid() : "null"));
             return;
         }
 
         // Set createdAt timestamp
         plan.setCreatedAt(System.currentTimeMillis());
+        
+        Log.d(TAG, "Saving AI plan to Firebase. Path: ai_trip_plans/" + mAuth.getCurrentUser().getUid() + "/" + tripId);
+        Log.d(TAG, "Plan details - PackingList size: " + 
+            (plan.getPackingList() != null ? plan.getPackingList().size() : 0) +
+            ", DayPlan size: " + 
+            (plan.getDayPlan() != null ? plan.getDayPlan().size() : 0) +
+            ", Tips size: " + 
+            (plan.getGeneralTips() != null ? plan.getGeneralTips().size() : 0));
 
         planRef.setValue(plan)
                 .addOnSuccessListener(aVoid -> {
@@ -145,6 +187,7 @@ public class AiTripPlanFirebaseService {
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Failed to save AI plan", e);
+                    e.printStackTrace();
                 });
     }
 

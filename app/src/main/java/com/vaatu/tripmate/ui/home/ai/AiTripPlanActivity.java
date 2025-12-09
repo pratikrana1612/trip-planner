@@ -27,6 +27,7 @@ import java.util.List;
 
 public class AiTripPlanActivity extends AppCompatActivity {
 
+    private static final String TAG = "AiTripPlanActivity";
     public static final String EXTRA_TRIP = "com.vaatu.tripmate.extra.TRIP_MODEL";
 
     private View loadingGroup;
@@ -80,6 +81,8 @@ public class AiTripPlanActivity extends AppCompatActivity {
         
         // Generate unique tripId from trip properties
         tripId = AiTripPlanFirebaseService.generateTripId(tripModel);
+        android.util.Log.d(TAG, "Generated tripId: " + tripId + " for trip: " + 
+            (tripModel != null ? tripModel.getTripname() : "null"));
         
         populateTripSummary(tripModel);
         loadAiPlan();
@@ -150,13 +153,13 @@ public class AiTripPlanActivity extends AppCompatActivity {
         showLoading();
         
         // First, try to load from cache
-        android.util.Log.d("AiTripPlan", "Checking cache for trip: " + tripId);
+        android.util.Log.d(TAG, "Checking cache for trip: " + tripId);
         aiTripPlanFirebaseService.loadAiTripPlan(tripId, new AiTripPlanFirebaseService.AiTripPlanCallback() {
             @Override
             public void onSuccess(AiTripPlan plan) {
                 // Found cached plan - display it
                 runOnUiThread(() -> {
-                    android.util.Log.d("AiTripPlan", "Cache hit! Displaying cached plan");
+                    android.util.Log.d(TAG, "Cache hit! Displaying cached plan");
                     showContent();
                     updateUi(plan);
                 });
@@ -165,7 +168,7 @@ public class AiTripPlanActivity extends AppCompatActivity {
             @Override
             public void onPlanNotFound() {
                 // No cached plan - generate new one
-                android.util.Log.d("AiTripPlan", "Cache miss, calling Gemini API");
+                android.util.Log.d(TAG, "Cache miss, calling Gemini API");
                 fetchAiPlanFromGemini();
             }
 
@@ -184,25 +187,25 @@ public class AiTripPlanActivity extends AppCompatActivity {
     private void fetchAiPlanFromGemini() {
         // Prevent multiple simultaneous API calls
         if (isApiCallInProgress) {
-            android.util.Log.w("AiTripPlan", "API call already in progress, skipping duplicate request");
+            android.util.Log.w(TAG, "API call already in progress, skipping duplicate request");
             return;
         }
         
         isApiCallInProgress = true;
         showLoading();
-        android.util.Log.d("AiTripPlan", "Calling Gemini API for trip: " + tripId);
+        android.util.Log.d(TAG, "Calling Gemini API for trip: " + tripId);
         
         geminiTravelService.generatePlan(tripModel, new GeminiTravelService.GeminiCallback() {
             @Override
             public void onSuccess(AiTripPlan aiTripPlan) {
                 runOnUiThread(() -> {
-                    android.util.Log.d("AiTripPlan", "Successfully received plan from Gemini API");
+                    android.util.Log.d(TAG, "Successfully received plan from Gemini API");
                     showContent();
                     updateUi(aiTripPlan);
                     
                     // Save to Firebase cache
                     if (tripId != null) {
-                        android.util.Log.d("AiTripPlan", "Saving plan to Firebase cache");
+                        android.util.Log.d(TAG, "Saving plan to Firebase cache");
                         aiTripPlanFirebaseService.saveAiTripPlan(tripId, aiTripPlan);
                     }
                     
@@ -214,17 +217,18 @@ public class AiTripPlanActivity extends AppCompatActivity {
 
             @Override
             public void onError(String errorMessage) {
-                android.util.Log.e("AiTripPlan", "Gemini API error: " + errorMessage);
+                android.util.Log.e(TAG, "Gemini API error: " + errorMessage);
+                android.util.Log.e(TAG, "Error details - tripId: " + tripId + ", isRefreshing: " + isRefreshing);
                 runOnUiThread(() -> {
                     // If it's a rate limit error and we're not refreshing, try to load cached plan
                     if (errorMessage != null && errorMessage.contains("RATE_LIMIT_EXCEEDED") && !isRefreshing) {
-                        android.util.Log.w("AiTripPlan", "Rate limit hit, attempting to load cached plan as fallback");
+                        android.util.Log.w(TAG, "Rate limit hit, attempting to load cached plan as fallback");
                         // Try to load from cache as fallback
                         aiTripPlanFirebaseService.loadAiTripPlan(tripId, new AiTripPlanFirebaseService.AiTripPlanCallback() {
                             @Override
                             public void onSuccess(AiTripPlan plan) {
                                 runOnUiThread(() -> {
-                                    android.util.Log.d("AiTripPlan", "Successfully loaded cached plan as fallback");
+                                    android.util.Log.d(TAG, "Successfully loaded cached plan as fallback");
                                     showContent();
                                     updateUi(plan);
                                     Toast.makeText(AiTripPlanActivity.this, 
@@ -236,7 +240,7 @@ public class AiTripPlanActivity extends AppCompatActivity {
                             @Override
                             public void onPlanNotFound() {
                                 runOnUiThread(() -> {
-                                    android.util.Log.w("AiTripPlan", "No cached plan found as fallback");
+                                    android.util.Log.w(TAG, "No cached plan found as fallback");
                                     showError("Rate limit exceeded. No cached plan available. Please try again later.");
                                 });
                             }
@@ -244,12 +248,13 @@ public class AiTripPlanActivity extends AppCompatActivity {
                             @Override
                             public void onError(String cacheError) {
                                 runOnUiThread(() -> {
-                                    android.util.Log.e("AiTripPlan", "Error loading cached plan: " + cacheError);
+                                    android.util.Log.e(TAG, "Error loading cached plan: " + cacheError);
                                     showError("Rate limit exceeded. Unable to load cached plan. Please try again later.");
                                 });
                             }
                         });
                     } else {
+                        android.util.Log.e(TAG, "Showing error to user: " + errorMessage);
                         showError(errorMessage);
                     }
                     // Reset flags even on error

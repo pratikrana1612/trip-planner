@@ -13,6 +13,10 @@ public class PackingItem {
     @SerializedName("reason")
     private String reason;
 
+    // Default constructor required for Firebase
+    public PackingItem() {
+    }
+
     public String getItem() {
         return item;
     }

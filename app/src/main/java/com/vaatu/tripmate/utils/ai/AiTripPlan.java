@@ -19,6 +19,10 @@ public class AiTripPlan {
     @SerializedName("createdAt")
     private long createdAt;
 
+    // Default constructor required for Firebase
+    public AiTripPlan() {
+    }
+
     public List<PackingItem> getPackingList() {
         return packingList;
     }
