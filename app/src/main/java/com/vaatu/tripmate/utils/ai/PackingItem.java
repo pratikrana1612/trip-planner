@@ -13,6 +13,9 @@ public class PackingItem {
     @SerializedName("reason")
     private String reason;
 
+    // Track if item is checked/packed
+    private boolean checked = false;
+
     // Default constructor required for Firebase
     public PackingItem() {
     }
@@ -39,6 +42,14 @@ public class PackingItem {
 
     public void setReason(String reason) {
         this.reason = reason;
+    }
+
+    public boolean isChecked() {
+        return checked;
+    }
+
+    public void setChecked(boolean checked) {
+        this.checked = checked;
     }
 }
 

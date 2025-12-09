@@ -50,6 +50,7 @@ public class AiTripPlanActivity extends AppCompatActivity {
     private String tripId;
     private boolean isRefreshing = false;
     private boolean isApiCallInProgress = false;
+    private AiTripPlan currentPlan; // Keep reference to current plan for saving checked states
 
     public static void start(Context context, TripModel tripModel) {
         Intent intent = new Intent(context, AiTripPlanActivity.class);
@@ -112,6 +113,16 @@ public class AiTripPlanActivity extends AppCompatActivity {
         packingRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         packingRecyclerView.setNestedScrollingEnabled(false);
         packingListAdapter = new PackingListAdapter();
+        
+        // Set listener to save checked states to Firebase
+        packingListAdapter.setOnItemCheckedListener((position, item, isChecked) -> {
+            if (currentPlan != null && tripId != null) {
+                android.util.Log.d(TAG, "Packing item checked changed: " + item.getItem() + " = " + isChecked);
+                // Save updated plan to Firebase
+                aiTripPlanFirebaseService.saveAiTripPlan(tripId, currentPlan);
+            }
+        });
+        
         packingRecyclerView.setAdapter(packingListAdapter);
 
         dayPlanRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -278,6 +289,9 @@ public class AiTripPlanActivity extends AppCompatActivity {
             showError(getString(R.string.ai_trip_plan_error_generic));
             return;
         }
+
+        // Store reference to current plan for saving checked states
+        currentPlan = aiTripPlan;
 
         if (aiTripPlan.getPackingList() != null) {
             packingListAdapter.submitList(aiTripPlan.getPackingList());

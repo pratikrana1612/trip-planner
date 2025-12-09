@@ -2,7 +2,6 @@ package com.vaatu.tripmate.ui.home.ai;
 
 import android.graphics.Paint;
 import android.text.TextUtils;
-import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +20,15 @@ import java.util.List;
 class PackingListAdapter extends RecyclerView.Adapter<PackingListAdapter.PackingViewHolder> {
 
     private final List<PackingItem> items = new ArrayList<>();
-    private final SparseBooleanArray checkedStates = new SparseBooleanArray();
+    private OnItemCheckedListener checkedListener;
+
+    interface OnItemCheckedListener {
+        void onItemCheckedChanged(int position, PackingItem item, boolean isChecked);
+    }
+
+    void setOnItemCheckedListener(OnItemCheckedListener listener) {
+        this.checkedListener = listener;
+    }
 
     @NonNull
     @Override
@@ -48,15 +55,21 @@ class PackingListAdapter extends RecyclerView.Adapter<PackingListAdapter.Packing
                 R.string.ai_trip_plan_item_reason_template, reason));
 
         holder.itemCheckBox.setOnCheckedChangeListener(null);
-        boolean isChecked = checkedStates.get(position, false);
+        boolean isChecked = item.isChecked();
         holder.itemCheckBox.setChecked(isChecked);
         applyCheckedState(holder, isChecked);
 
         holder.itemCheckBox.setOnCheckedChangeListener((buttonView, checked) -> {
             int adapterPosition = holder.getAdapterPosition();
-            if (adapterPosition != RecyclerView.NO_POSITION) {
-                checkedStates.put(adapterPosition, checked);
+            if (adapterPosition != RecyclerView.NO_POSITION && adapterPosition < items.size()) {
+                PackingItem updatedItem = items.get(adapterPosition);
+                updatedItem.setChecked(checked);
                 applyCheckedState(holder, checked);
+                
+                // Notify listener to save to Firebase
+                if (checkedListener != null) {
+                    checkedListener.onItemCheckedChanged(adapterPosition, updatedItem, checked);
+                }
             }
         });
 
@@ -70,7 +83,6 @@ class PackingListAdapter extends RecyclerView.Adapter<PackingListAdapter.Packing
 
     void submitList(List<PackingItem> newItems) {
         items.clear();
-        checkedStates.clear();
         if (newItems != null) {
             items.addAll(newItems);
         }
