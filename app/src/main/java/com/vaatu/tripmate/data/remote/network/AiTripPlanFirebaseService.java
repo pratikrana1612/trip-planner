@@ -126,6 +126,42 @@ public class AiTripPlanFirebaseService {
                                 (plan.getDayPlan() != null ? plan.getDayPlan().size() : 0) +
                                 ", Tips size: " + 
                                 (plan.getGeneralTips() != null ? plan.getGeneralTips().size() : 0));
+                            
+                            // Log checked states of packing items and ensure they're properly initialized
+                            if (plan.getPackingList() != null && !plan.getPackingList().isEmpty()) {
+                                StringBuilder checkedStates = new StringBuilder("Checked states from Firebase: ");
+                                // Firebase stores lists as a map with numeric keys or as an array
+                                // Try to access the packingList field
+                                DataSnapshot packingListSnapshot = dataSnapshot.child("packingList");
+                                if (packingListSnapshot.exists()) {
+                                    Log.d(TAG, "Found packingList in Firebase snapshot");
+                                    int index = 0;
+                                    for (DataSnapshot itemSnapshot : packingListSnapshot.getChildren()) {
+                                        if (index < plan.getPackingList().size()) {
+                                            com.vaatu.tripmate.utils.ai.PackingItem item = plan.getPackingList().get(index);
+                                            // Check if checked field exists for this item
+                                            if (itemSnapshot.hasChild("checked")) {
+                                                Boolean checkedValue = itemSnapshot.child("checked").getValue(Boolean.class);
+                                                if (checkedValue != null) {
+                                                    item.setChecked(checkedValue);
+                                                    Log.d(TAG, "Set checked state from Firebase for item " + index + " (" + item.getItem() + "): " + checkedValue);
+                                                }
+                                            } else {
+                                                Log.d(TAG, "No checked field found for item " + index + " (" + item.getItem() + ")");
+                                            }
+                                            checkedStates.append(item.getItem()).append("=").append(item.isChecked()).append(" ");
+                                            index++;
+                                        }
+                                    }
+                                } else {
+                                    // Fallback: log what we have from deserialization
+                                    for (int i = 0; i < plan.getPackingList().size(); i++) {
+                                        com.vaatu.tripmate.utils.ai.PackingItem item = plan.getPackingList().get(i);
+                                        checkedStates.append(item.getItem()).append("=").append(item.isChecked()).append(" ");
+                                    }
+                                }
+                                Log.d(TAG, checkedStates.toString());
+                            }
                         }
                         
                         if (plan != null && !plan.isEmpty()) {
@@ -180,6 +216,15 @@ public class AiTripPlanFirebaseService {
             (plan.getDayPlan() != null ? plan.getDayPlan().size() : 0) +
             ", Tips size: " + 
             (plan.getGeneralTips() != null ? plan.getGeneralTips().size() : 0));
+        
+        // Log checked states being saved
+        if (plan.getPackingList() != null && !plan.getPackingList().isEmpty()) {
+            StringBuilder checkedStates = new StringBuilder("Saving checked states: ");
+            for (com.vaatu.tripmate.utils.ai.PackingItem item : plan.getPackingList()) {
+                checkedStates.append(item.getItem()).append("=").append(item.isChecked()).append(" ");
+            }
+            Log.d(TAG, checkedStates.toString());
+        }
 
         planRef.setValue(plan)
                 .addOnSuccessListener(aVoid -> {

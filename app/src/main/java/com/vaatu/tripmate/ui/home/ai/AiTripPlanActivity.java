@@ -118,6 +118,17 @@ public class AiTripPlanActivity extends AppCompatActivity {
         packingListAdapter.setOnItemCheckedListener((position, item, isChecked) -> {
             if (currentPlan != null && tripId != null) {
                 android.util.Log.d(TAG, "Packing item checked changed: " + item.getItem() + " = " + isChecked);
+                android.util.Log.d(TAG, "Current plan packing list size: " + 
+                    (currentPlan.getPackingList() != null ? currentPlan.getPackingList().size() : 0));
+                
+                // Ensure the item in currentPlan is updated (they should be the same reference, but verify)
+                if (currentPlan.getPackingList() != null && position < currentPlan.getPackingList().size()) {
+                    currentPlan.getPackingList().get(position).setChecked(isChecked);
+                    android.util.Log.d(TAG, "Updated item in currentPlan: " + 
+                        currentPlan.getPackingList().get(position).getItem() + " = " + 
+                        currentPlan.getPackingList().get(position).isChecked());
+                }
+                
                 // Save updated plan to Firebase
                 aiTripPlanFirebaseService.saveAiTripPlan(tripId, currentPlan);
             }
@@ -293,7 +304,17 @@ public class AiTripPlanActivity extends AppCompatActivity {
         // Store reference to current plan for saving checked states
         currentPlan = aiTripPlan;
 
+        // Log checked states when updating UI
+        if (aiTripPlan.getPackingList() != null && !aiTripPlan.getPackingList().isEmpty()) {
+            android.util.Log.d(TAG, "Updating UI with packing list. Checked states:");
+            for (int i = 0; i < aiTripPlan.getPackingList().size(); i++) {
+                com.vaatu.tripmate.utils.ai.PackingItem item = aiTripPlan.getPackingList().get(i);
+                android.util.Log.d(TAG, "  [" + i + "] " + item.getItem() + " = " + item.isChecked());
+            }
+        }
+
         if (aiTripPlan.getPackingList() != null) {
+            // Pass the same list reference so updates to items persist
             packingListAdapter.submitList(aiTripPlan.getPackingList());
         } else {
             packingListAdapter.submitList(Collections.emptyList());
