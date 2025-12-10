@@ -32,6 +32,7 @@ public class HomeFragment extends Fragment {
     private FirebaseUser currentUser;
     private DatabaseReference mTripsRef;
     private List<TripModel> tripDetails = new ArrayList<>();
+    private List<String> tripKeys = new ArrayList<>();
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -43,7 +44,7 @@ public class HomeFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_home, container, false);
 
         RecyclerView rev = root.findViewById(R.id.recycler);
-        HomeAdaptor adpater = new HomeAdaptor(tripDetails, getActivity());
+        HomeAdaptor adpater = new HomeAdaptor(tripDetails, tripKeys, getActivity());
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         linearLayoutManager.setReverseLayout(true);
@@ -58,9 +59,11 @@ public class HomeFragment extends Fragment {
                 // Get Post object and use the values to update the UI
                 Log.i("DataSnapshot Loop", "##");
                 tripDetails.clear();
+                tripKeys.clear();
 
                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
                     tripDetails.add(ds.getValue(TripModel.class));
+                    tripKeys.add(ds.getKey());
                 }
                 adpater.notifyDataSetChanged();
                 // ...

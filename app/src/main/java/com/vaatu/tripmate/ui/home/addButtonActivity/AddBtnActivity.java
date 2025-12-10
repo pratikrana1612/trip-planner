@@ -24,6 +24,10 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.android.gms.common.api.Status;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
@@ -55,6 +59,9 @@ import butterknife.OnClick;
 public class AddBtnActivity extends AppCompatActivity implements TimePickerDialog.OnTimeSetListener, DatePickerDialog.OnDateSetListener {
     public static final String NEW_TRIP_OBJECT = "NEW_TRIP_OBJECT";
     public static final String NEW_TRIP_OBJ_SERIAL = "NEW_TRIP_OBJECT";
+    public static final String EXTRA_TRIP_MODEL = "EXTRA_TRIP_MODEL";
+    public static final String EXTRA_TRIP_KEY = "EXTRA_TRIP_KEY";
+    public static final String EXTRA_IS_EDIT = "EXTRA_IS_EDIT";
 
     @BindView(R.id.add_trip_btn)
     Button addTripBtn;
@@ -93,12 +100,23 @@ public class AddBtnActivity extends AppCompatActivity implements TimePickerDialo
     String selectedEndPlace = "";
     List<String> notesList = new ArrayList<>();
 
+    private boolean isEdit = false;
+    private String tripKey = null;
+    private TripModel editingTrip = null;
+
     AlarmManager alarmManager;
     PendingIntent pendingIntent;
 
     Calendar mCalendar;
     @BindView(R.id.progressBar)
     ProgressBar progressBar;
+
+    private FirebaseAuth mAuth;
+    private FirebaseUser currentUser;
+    private DatabaseReference tripsRef;
+
+    private AutocompleteSupportFragment placeStartPointAutoComplete;
+    private AutocompleteSupportFragment placeDestPointAutoComplete;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,6 +126,18 @@ public class AddBtnActivity extends AppCompatActivity implements TimePickerDialo
         mCalendar = Calendar.getInstance();
         hideProgressBar();
 
+        // Firebase setup
+        String dbUrl = "https://trip-mate-7fac8-default-rtdb.firebaseio.com/";
+        mAuth = FirebaseAuth.getInstance();
+        currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            tripsRef = FirebaseDatabase.getInstance(dbUrl)
+                    .getReference()
+                    .child("trip-mate")
+                    .child(currentUser.getUid())
+                    .child("upcomingtrips");
+        }
+
         //Auto Complete Google
         setUpAutoComplete();
 
@@ -116,11 +146,21 @@ public class AddBtnActivity extends AppCompatActivity implements TimePickerDialo
 
         // add first Note to mNotesTextInputLayout !
         mNotesTextInputLayout.add(noteTextField);
+
+        // Handle edit mode data
+        Intent intent = getIntent();
+        if (intent != null && intent.hasExtra(EXTRA_IS_EDIT)) {
+            isEdit = intent.getBooleanExtra(EXTRA_IS_EDIT, false);
+            tripKey = intent.getStringExtra(EXTRA_TRIP_KEY);
+            editingTrip = (TripModel) intent.getSerializableExtra(EXTRA_TRIP_MODEL);
+            if (isEdit && editingTrip != null) {
+                prefillTrip(editingTrip);
+                addTripBtn.setText(R.string.save);
+            }
+        }
     }
 
     private void setUpAutoComplete() {
-        AutocompleteSupportFragment placeStartPointAutoComplete;
-        AutocompleteSupportFragment placeDestPointAutoComplete;
         if (!Places.isInitialized()) {
             // @TODO Get Places API key
             Places.initialize(getApplicationContext(), "AIzaSyDaYjVRIqwflsHdCFHXe7CEOwZB9guVBPY");
@@ -170,6 +210,7 @@ public class AddBtnActivity extends AppCompatActivity implements TimePickerDialo
         switch (view.getId()) {
             case R.id.add_trip_btn:
                 showProgressBar();
+                notesList.clear();
                 //@TODO Copy this to another place !
                 for (TextInputLayout txtLayout : mNotesTextInputLayout) {
                     Log.i("Notes List", txtLayout.getEditText().getText().toString());
@@ -185,12 +226,22 @@ public class AddBtnActivity extends AppCompatActivity implements TimePickerDialo
                     TripModel newTrip = new TripModel(selectedStartPlace, selectedEndPlace, dateTextField.getText().toString(),
                             timeTextField.getText().toString(), tripNameTextField.getEditText().getText().toString(), null, notesList, mCalendar.getTime().toString());
 
-                    Intent resultIntent = new Intent();
-                    resultIntent.putExtra("NEWTRIP", newTrip);
-                    startAlarm(newTrip);
-                    setResult(Activity.RESULT_OK, resultIntent);
-                    Toast.makeText(this, "Added Successfully", Toast.LENGTH_SHORT).show();
-                    finish();
+                    if (isEdit && tripsRef != null && tripKey != null) {
+                        tripsRef.child(tripKey).setValue(newTrip).addOnSuccessListener(aVoid -> {
+                            Toast.makeText(this, "Trip updated", Toast.LENGTH_SHORT).show();
+                            finish();
+                        }).addOnFailureListener(e -> {
+                            Toast.makeText(this, "Update failed", Toast.LENGTH_SHORT).show();
+                            hideProgressBar();
+                        });
+                    } else {
+                        Intent resultIntent = new Intent();
+                        resultIntent.putExtra("NEWTRIP", newTrip);
+                        startAlarm(newTrip);
+                        setResult(Activity.RESULT_OK, resultIntent);
+                        Toast.makeText(this, "Added Successfully", Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
                 }
                 break;
             case R.id.add_note_btn:
@@ -322,6 +373,67 @@ public class AddBtnActivity extends AppCompatActivity implements TimePickerDialo
         currentParent.addView(linearLayout);
         increasedID++;
 
+    }
+
+    private void prefillTrip(TripModel trip) {
+        if (trip == null) return;
+
+        selectedStartPlace = trip.getStartloc() != null ? trip.getStartloc() : "";
+        selectedEndPlace = trip.getEndloc() != null ? trip.getEndloc() : "";
+
+        if (placeStartPointAutoComplete != null) {
+            placeStartPointAutoComplete.setText(selectedStartPlace);
+        }
+        if (placeDestPointAutoComplete != null) {
+            placeDestPointAutoComplete.setText(selectedEndPlace);
+        }
+
+        if (tripNameTextField.getEditText() != null) {
+            tripNameTextField.getEditText().setText(trip.getTripname());
+        }
+        dateTextField.setText(trip.getDate());
+        timeTextField.setText(trip.getTime());
+
+        // Prefill notes
+        LinearLayout parent = findViewById(R.id.notes_parent_linear_Layout);
+        if (parent != null) {
+            parent.removeAllViews();
+            mNotesTextInputLayout.clear();
+            // reuse initial layout
+            parent.addView(noteTextField);
+        }
+        List<String> tripNotes = trip.getNotes();
+        if (tripNotes != null && !tripNotes.isEmpty()) {
+            for (int i = 0; i < tripNotes.size(); i++) {
+                if (i == 0) {
+                    if (noteTextField.getEditText() != null) {
+                        noteTextField.getEditText().setText(tripNotes.get(i));
+                    }
+                    mNotesTextInputLayout.add(noteTextField);
+                } else {
+                    View linearLayout = getLayoutInflater().inflate(R.layout.add_notes_sayout_sample, null);
+                    TextInputLayout noteTextInput = linearLayout.findViewById(R.id.note_text_field_input);
+                    noteTextInput.getEditText().setText(tripNotes.get(i));
+                    ImageButton subImgBtn = linearLayout.findViewById(R.id.sub_note_img_btn);
+                    subImgBtn.setOnClickListener(v -> {
+                        LinearLayout currentParent = findViewById(R.id.notes_parent_linear_Layout);
+                        if (currentParent != null) {
+                            currentParent.removeView(linearLayout);
+                        }
+                        mNotesTextInputLayout.remove(noteTextInput);
+                    });
+                    if (parent != null) {
+                        parent.addView(linearLayout);
+                    }
+                    mNotesTextInputLayout.add(noteTextInput);
+                }
+            }
+        } else {
+            if (noteTextField.getEditText() != null) {
+                noteTextField.getEditText().setText("");
+            }
+            mNotesTextInputLayout.add(noteTextField);
+        }
     }
 
     private void startAlarm(TripModel tripModel) {

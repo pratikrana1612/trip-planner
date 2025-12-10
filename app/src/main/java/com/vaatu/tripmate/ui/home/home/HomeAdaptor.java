@@ -28,12 +28,14 @@ public class HomeAdaptor extends RecyclerView.Adapter<HomeAdaptor.ViewHolder> {
 
     List<TripModel> list = new ArrayList<>();
     List<TripModel> canceledlist = new ArrayList<>();
+    List<String> tripKeys = new ArrayList<>();
     Context cntxt;
     FirebaseDB mFirebaseDB;
 
 
-    public HomeAdaptor(List<TripModel> list, Context cntxt) {
+    public HomeAdaptor(List<TripModel> list, List<String> tripKeys, Context cntxt) {
         this.list = list;
+        this.tripKeys = tripKeys;
         this.cntxt = cntxt;
     }
 
@@ -98,6 +100,18 @@ public class HomeAdaptor extends RecyclerView.Adapter<HomeAdaptor.ViewHolder> {
                             }
                             pop.show();
 
+                        }
+                        if (item.getItemId() == R.id.edit_trip) {
+                            int adapterPosition = holder.getAdapterPosition();
+                            if (adapterPosition != RecyclerView.NO_POSITION && adapterPosition < list.size()) {
+                                String tripKey = tripKeys != null && adapterPosition < tripKeys.size()
+                                        ? tripKeys.get(adapterPosition) : null;
+                                Intent intent = new Intent(cntxt, com.vaatu.tripmate.ui.home.addButtonActivity.AddBtnActivity.class);
+                                intent.putExtra("EXTRA_TRIP_MODEL", list.get(adapterPosition));
+                                intent.putExtra("EXTRA_TRIP_KEY", tripKey);
+                                intent.putExtra("EXTRA_IS_EDIT", true);
+                                cntxt.startActivity(intent);
+                            }
                         }
                         if (item.getItemId() == R.id.cancel) {
                             // Toast.makeText(cntxt, "Cancel Trip : " + position, Toast.LENGTH_LONG).show();

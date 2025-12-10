@@ -9,6 +9,12 @@
     </item>
 
     <item
+        android:id="@+id/edit_trip"
+        android:title="Edit Trip">
+
+    </item>
+
+    <item
         android:id="@+id/cancel"
         android:title="@string/cancel_trip">
 

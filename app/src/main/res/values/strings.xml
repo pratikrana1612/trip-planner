@@ -89,6 +89,7 @@
     <string name="ai_trip_plan_cost_food_template">Food: %1$s</string>
     <string name="ai_trip_plan_cost_travel_template">Travel: %1$s</string>
     <string name="ai_trip_plan_cost_stay_template">Stay: %1$s</string>
+    <string name="save">Save</string>
     <string name="delete">Delete</string>
     <string name="delete_photo_confirmation_title">Delete photo?</string>
     <string name="delete_photo_confirmation_message">This photo will be removed from the trip memories.</string>
