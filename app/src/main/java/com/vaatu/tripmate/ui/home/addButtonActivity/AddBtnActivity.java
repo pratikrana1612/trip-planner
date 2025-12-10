@@ -8,6 +8,7 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -222,6 +223,10 @@ public class AddBtnActivity extends AppCompatActivity implements TimePickerDialo
                     dateTextField.setError("Cannot be blank!");
                 } else if (timeTextField.getText().toString().equals("")) {
                     timeTextField.setError("Cannot be blank!");
+                } else if (TextUtils.isEmpty(selectedStartPlace)) {
+                    Toast.makeText(this, "Please select a start location", Toast.LENGTH_SHORT).show();
+                } else if (TextUtils.isEmpty(selectedEndPlace)) {
+                    Toast.makeText(this, "Please select a destination", Toast.LENGTH_SHORT).show();
                 } else {
                     TripModel newTrip = new TripModel(selectedStartPlace, selectedEndPlace, dateTextField.getText().toString(),
                             timeTextField.getText().toString(), tripNameTextField.getEditText().getText().toString(), null, notesList, mCalendar.getTime().toString());
