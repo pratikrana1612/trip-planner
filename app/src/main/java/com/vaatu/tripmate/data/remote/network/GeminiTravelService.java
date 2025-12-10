@@ -26,7 +26,7 @@ import okhttp3.Response;
 
 public class GeminiTravelService {
 
-    private static final String BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent";
+    private static final String BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
     private static final MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json; charset=utf-8");
     private static final String GEMINI_API_KEY = "";
 
