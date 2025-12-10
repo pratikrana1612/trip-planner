@@ -394,26 +394,33 @@ public class AddBtnActivity extends AppCompatActivity implements TimePickerDialo
         dateTextField.setText(trip.getDate());
         timeTextField.setText(trip.getTime());
 
-        // Prefill notes
+        // Prefill notes without reparenting the existing first note field
         LinearLayout parent = findViewById(R.id.notes_parent_linear_Layout);
         if (parent != null) {
-            parent.removeAllViews();
-            mNotesTextInputLayout.clear();
-            // reuse initial layout
-            parent.addView(noteTextField);
+            // Remove any dynamically added note rows, keep the first child (notes_linearLayout) intact
+            int childCount = parent.getChildCount();
+            if (childCount > 1) {
+                parent.removeViews(1, childCount - 1);
+            }
         }
+        mNotesTextInputLayout.clear();
+
         List<String> tripNotes = trip.getNotes();
         if (tripNotes != null && !tripNotes.isEmpty()) {
-            for (int i = 0; i < tripNotes.size(); i++) {
-                if (i == 0) {
-                    if (noteTextField.getEditText() != null) {
-                        noteTextField.getEditText().setText(tripNotes.get(i));
-                    }
-                    mNotesTextInputLayout.add(noteTextField);
-                } else {
-                    View linearLayout = getLayoutInflater().inflate(R.layout.add_notes_sayout_sample, null);
+            // First note goes into the existing noteTextField
+            if (noteTextField.getEditText() != null) {
+                noteTextField.getEditText().setText(tripNotes.get(0));
+            }
+            mNotesTextInputLayout.add(noteTextField);
+
+            // Additional notes get their own inflated rows
+            if (parent != null) {
+                for (int i = 1; i < tripNotes.size(); i++) {
+                    View linearLayout = getLayoutInflater().inflate(R.layout.add_notes_sayout_sample, parent, false);
                     TextInputLayout noteTextInput = linearLayout.findViewById(R.id.note_text_field_input);
-                    noteTextInput.getEditText().setText(tripNotes.get(i));
+                    if (noteTextInput.getEditText() != null) {
+                        noteTextInput.getEditText().setText(tripNotes.get(i));
+                    }
                     ImageButton subImgBtn = linearLayout.findViewById(R.id.sub_note_img_btn);
                     subImgBtn.setOnClickListener(v -> {
                         LinearLayout currentParent = findViewById(R.id.notes_parent_linear_Layout);
@@ -422,13 +429,12 @@ public class AddBtnActivity extends AppCompatActivity implements TimePickerDialo
                         }
                         mNotesTextInputLayout.remove(noteTextInput);
                     });
-                    if (parent != null) {
-                        parent.addView(linearLayout);
-                    }
+                    parent.addView(linearLayout);
                     mNotesTextInputLayout.add(noteTextInput);
                 }
             }
         } else {
+            // No notes: clear the first field
             if (noteTextField.getEditText() != null) {
                 noteTextField.getEditText().setText("");
             }
