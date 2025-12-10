@@ -306,13 +306,14 @@ public class AddBtnActivity extends AppCompatActivity implements TimePickerDialo
                 .append(min).append(" ").append(timeSet).toString();
         timeTextField.setText(aTime);
 
-        // Set calendat item
-        mCalendar = Calendar.getInstance();
-
-
+        // Set calendar time on the existing selected date (do NOT reset to now)
+        if (mCalendar == null) {
+            mCalendar = Calendar.getInstance();
+        }
         mCalendar.set(Calendar.HOUR_OF_DAY, i);
         mCalendar.set(Calendar.MINUTE, i1);
         mCalendar.set(Calendar.SECOND, 0);
+        mCalendar.set(Calendar.MILLISECOND, 0);
 
     }
 
