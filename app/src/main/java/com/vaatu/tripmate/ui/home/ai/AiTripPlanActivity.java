@@ -21,6 +21,7 @@ import com.vaatu.tripmate.data.remote.network.AiTripPlanFirebaseService;
 import com.vaatu.tripmate.data.remote.network.GeminiTravelService;
 import com.vaatu.tripmate.utils.TripModel;
 import com.vaatu.tripmate.utils.ai.AiTripPlan;
+import com.vaatu.tripmate.utils.ai.EstimatedCosts;
 
 import java.util.Collections;
 import java.util.List;
@@ -39,6 +40,9 @@ public class AiTripPlanActivity extends AppCompatActivity {
     private TextView tripDateText;
     private TextView tripNotesText;
     private TextView generalTipsText;
+    private TextView costsFoodText;
+    private TextView costsTravelText;
+    private TextView costsStayText;
     private RecyclerView packingRecyclerView;
     private RecyclerView dayPlanRecyclerView;
 
@@ -99,6 +103,9 @@ public class AiTripPlanActivity extends AppCompatActivity {
         tripDateText = findViewById(R.id.tripDateText);
         tripNotesText = findViewById(R.id.tripNotesText);
         generalTipsText = findViewById(R.id.generalTipsText);
+        costsFoodText = findViewById(R.id.costsFoodText);
+        costsTravelText = findViewById(R.id.costsTravelText);
+        costsStayText = findViewById(R.id.costsStayText);
         packingRecyclerView = findViewById(R.id.packingRecyclerView);
         dayPlanRecyclerView = findViewById(R.id.dayPlanRecyclerView);
 
@@ -160,6 +167,10 @@ public class AiTripPlanActivity extends AppCompatActivity {
 
     private String safe(String value) {
         return value == null ? getString(R.string.ai_trip_plan_value_unknown) : value;
+    }
+
+    private String valueOrUnknown(String value) {
+        return TextUtils.isEmpty(value) ? getString(R.string.ai_trip_plan_value_unknown) : value;
     }
 
     /**
@@ -318,6 +329,23 @@ public class AiTripPlanActivity extends AppCompatActivity {
             packingListAdapter.submitList(aiTripPlan.getPackingList());
         } else {
             packingListAdapter.submitList(Collections.emptyList());
+        }
+
+        EstimatedCosts estimatedCosts = aiTripPlan.getEstimatedCosts();
+        if (estimatedCosts != null && !estimatedCosts.isEmpty()) {
+            costsFoodText.setText(getString(R.string.ai_trip_plan_cost_food_template,
+                    valueOrUnknown(estimatedCosts.getFood())));
+            costsTravelText.setText(getString(R.string.ai_trip_plan_cost_travel_template,
+                    valueOrUnknown(estimatedCosts.getTravel())));
+            costsStayText.setText(getString(R.string.ai_trip_plan_cost_stay_template,
+                    valueOrUnknown(estimatedCosts.getStay())));
+        } else {
+            costsFoodText.setText(getString(R.string.ai_trip_plan_cost_food_template,
+                    getString(R.string.ai_trip_plan_value_unknown)));
+            costsTravelText.setText(getString(R.string.ai_trip_plan_cost_travel_template,
+                    getString(R.string.ai_trip_plan_value_unknown)));
+            costsStayText.setText(getString(R.string.ai_trip_plan_cost_stay_template,
+                    getString(R.string.ai_trip_plan_value_unknown)));
         }
 
         if (aiTripPlan.getDayPlan() != null) {

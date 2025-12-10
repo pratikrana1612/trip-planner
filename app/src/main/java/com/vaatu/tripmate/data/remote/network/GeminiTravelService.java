@@ -150,9 +150,10 @@ public class GeminiTravelService {
                 + "{\n"
                 + "  \"packing_list\": [ { \"item\": \"...\",\"category\": \"...\",\"reason\": \"...\" } ],\n"
                 + "  \"day_plan\": [ { \"day_number\": 1, \"title\": \"...\",\"description\": \"...\",\"places_to_visit\":[{\"name\":\"...\",\"time_of_day\":\"morning/afternoon/evening\",\"notes\":\"...\"}]} ],\n"
-                + "  \"general_tips\": [\"...\"]\n"
+                + "  \"general_tips\": [\"...\"],\n"
+                + "  \"estimated_costs\": { \"food\": \"...\", \"travel\": \"...\", \"stay\": \"...\" }\n"
                 + "}\n"
-                + "Adjust packing and plans according to destination weather, common attractions and reasonable budget.";
+                + "Adjust packing and plans according to destination weather, common attractions and reasonable budget. Provide realistic estimated costs in local currency for food, travel/transport, and stay/lodging.";
     }
 
     private int estimateTripDuration(TripModel trip) {

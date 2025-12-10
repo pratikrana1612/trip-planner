@@ -19,6 +19,9 @@ public class AiTripPlan {
     @SerializedName("createdAt")
     private long createdAt;
 
+    @SerializedName("estimated_costs")
+    private EstimatedCosts estimatedCosts;
+
     // Default constructor required for Firebase
     public AiTripPlan() {
     }
@@ -55,10 +58,19 @@ public class AiTripPlan {
         this.createdAt = createdAt;
     }
 
+    public EstimatedCosts getEstimatedCosts() {
+        return estimatedCosts;
+    }
+
+    public void setEstimatedCosts(EstimatedCosts estimatedCosts) {
+        this.estimatedCosts = estimatedCosts;
+    }
+
     public boolean isEmpty() {
         return (packingList == null || packingList.isEmpty()) &&
                 (dayPlan == null || dayPlan.isEmpty()) &&
-                (generalTips == null || generalTips.isEmpty());
+                (generalTips == null || generalTips.isEmpty()) &&
+                (estimatedCosts == null || estimatedCosts.isEmpty());
     }
 }
 
